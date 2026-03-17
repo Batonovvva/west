@@ -45,11 +45,13 @@ function Dog() {
 const seriffStartDeck = [
     new Card('Мирный житель', 2),
     new Card('Мирный житель', 2),
-    new Card('Мирный житель', 2),
+    new Card('Мирный житель', 200),
 ];
 
 // Колода Бандита, верхнего игрока.
 const banditStartDeck = [
+    new Card('Бандит', 3),
+    new Card('Бандит', 3),
     new Card('Бандит', 3),
 ];
 
@@ -58,7 +60,7 @@ const banditStartDeck = [
 const game = new Game(seriffStartDeck, banditStartDeck);
 
 // Глобальный объект, позволяющий управлять скоростью всех анимаций.
-SpeedRate.set(1);
+SpeedRate.set(4);
 
 // Запуск игры.
 game.play(false, (winner) => {
