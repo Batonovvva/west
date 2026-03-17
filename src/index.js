@@ -3,6 +3,28 @@ import Game from './Game.js';
 import TaskQueue from './TaskQueue.js';
 import SpeedRate from './SpeedRate.js';
 
+function isDog(card) {
+    return card instanceof Dog;
+}
+
+function isDuck(card) {
+    return card instanceof Duck;
+}
+
+// Дает описание существа по схожести с утками и собаками
+function getCreatureDescription(card) {
+    if (isDuck(card) && isDog(card)) {
+        return 'Утка-Собака';
+    }
+    if (isDuck(card)) {
+        return 'Утка';
+    }
+    if (isDog(card)) {
+        return 'Собака';
+    }
+    return 'Существо';
+}
+
 class Duck extends Card {
     constructor() {
         super('Мирная утка', 2);
@@ -22,28 +44,27 @@ class Dog extends Card {
         super('Пес-бандит', 3);
     }
 }
-
-
-function isDuck(card) {
-    return card instanceof Duck;
-}
-
-function isDog(card) {
-    return card instanceof Dog;
-}
-
-// Дает описание существа по схожести с утками и собаками
-function getCreatureDescription(card) {
-    if (isDuck(card) && isDog(card)) {
-        return 'Утка-Собака';
+class Trasher extends Dog {
+    constructor() {
+        super();
+        this.name = 'Громила';
+        this.maxPower = 5;
+        this.currentPower = 5;
+        this.updateView();
     }
-    if (isDuck(card)) {
-        return 'Утка';
+
+    modifyTakenDamage(value, fromCard, gameContext, continuation) {
+        this.view.signalAbility(() => {
+            continuation(value - 1);
+        });
     }
-    if (isDog(card)) {
-        return 'Собака';
+
+    getDescriptions() {
+        return [
+            'Получает на 1 меньше урона',
+            ...super.getDescriptions(),
+        ];
     }
-    return 'Существо';
 }
 
 
