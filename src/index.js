@@ -3,29 +3,22 @@ import Game from './Game.js';
 import TaskQueue from './TaskQueue.js';
 import SpeedRate from './SpeedRate.js';
 
-function isDog(card) {
-    return card instanceof Dog;
+
+class Creature extends Card {
+    constructor(name, maxPower, image) {
+        super(name, maxPower, image);
+    }
+
+    getDescriptions(){
+        return [
+            getCreatureDescription(this),
+            super.getDescriptions()
+        ];
+    };
 }
 
-function isDuck(card) {
-    return card instanceof Duck;
-}
 
-// Дает описание существа по схожести с утками и собаками
-function getCreatureDescription(card) {
-    if (isDuck(card) && isDog(card)) {
-        return 'Утка-Собака';
-    }
-    if (isDuck(card)) {
-        return 'Утка';
-    }
-    if (isDog(card)) {
-        return 'Собака';
-    }
-    return 'Существо';
-}
-
-class Duck extends Card {
+class Duck extends Creature {
     constructor() {
         super('Мирная утка', 2);
     }
@@ -39,11 +32,22 @@ class Duck extends Card {
     }
 }
 
-class Dog extends Card {
+class Dog extends Creature {
     constructor() {
         super('Пес-бандит', 3);
     }
 }
+
+
+function isDuck(card) {
+    return card instanceof Duck;
+}
+
+function isDog(card) {
+    return card instanceof Dog;
+}
+
+
 class Trasher extends Dog {
     constructor() {
         super();
@@ -67,16 +71,31 @@ class Trasher extends Dog {
     }
 }
 
+// Дает описание существа по схожести с утками и собаками
+function getCreatureDescription(card) {
+    if (isDuck(card) && isDog(card)) {
+        return 'Утка-Собака';
+    }
+    if (isDuck(card)) {
+        return 'Утка';
+    }
+    if (isDog(card)) {
+        return 'Собака';
+    }
+    return 'Существо';
+}
+
 
 const seriffStartDeck = [
     new Duck(),
     new Duck(),
     new Duck(),
+    new Duck(),
+];
+const banditStartDeck = [
+    new Trasher(),
 ];
 
-const banditStartDeck = [
-    new Dog(),
-];
 
 
 // Создание игры.
@@ -89,3 +108,5 @@ SpeedRate.set(1);
 game.play(false, (winner) => {
     alert('Победил ' + winner.name);
 });
+
+
