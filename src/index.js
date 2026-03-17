@@ -60,22 +60,22 @@ class Lad extends Dog {
     }
 
     doAfterComingIntoPlay(gameContext, continuation) {
-        this.constructor.setInGameCount(this.constructor.getInGameCount() + 1);
+        Lad.setInGameCount(Lad.getInGameCount() + 1);
         gameContext.updateView();
         continuation();
     }
 
     doBeforeRemoving(continuation) {
-        this.constructor.setInGameCount(this.constructor.getInGameCount() - 1);
+        Lad.setInGameCount(Lad.getInGameCount() - 1);
         continuation();
     }
 
     modifyDealedDamageToCreature(value, toCard, gameContext, continuation) {
-        continuation(value + this.constructor.getBonus());
+        continuation(value + Lad.getBonus());
     }
 
     modifyTakenDamage(value, fromCard, gameContext, continuation) {
-        continuation(value - this.constructor.getBonus());
+        continuation(value - Lad.getBonus());
     }
 
     getDescriptions() {
@@ -87,6 +87,41 @@ class Lad extends Dog {
         ) {
             descriptions.unshift('Чем их больше, тем они сильнее');
         }
+
+        return descriptions;
+    }
+}
+
+class Rogue extends Creature {
+    constructor() {
+        super('Изгой', 2);
+    }
+
+    doBeforeAttack(gameContext, continuation) {
+        const {oppositePlayer, position, updateView} = gameContext;
+        const targetCard = oppositePlayer.table[position];
+
+        if (targetCard) {
+            const targetProto = Object.getPrototypeOf(targetCard);
+            
+            const abilitiesToSteal = [
+                'modifyDealedDamageToCreature',
+                'modifyDealedDamageToPlayer',
+                'modifyTakenDamage'
+            ];
+
+            abilitiesToSteal.forEach(ability => {
+                if (targetProto.hasOwnProperty(ability)) {
+                    this[ability] = targetProto[ability];
+                    delete targetProto[ability];
+                }
+            });
+        }
+        updateView();
+        continuation();
+    }
+    getDescriptions() {
+        const descriptions = [...super.getDescriptions()];
 
         return descriptions;
     }
@@ -130,7 +165,7 @@ class Trasher extends Dog {
 class Gatling extends Creature {
     constructor() {
         super();
-        this.name = 'Gatling';
+        this.name = 'Гатлинг';
         this.maxPower = 6;
         this.currentPower = 6;
         this.updateView();
@@ -183,8 +218,10 @@ const seriffStartDeck = [
     new Duck(),
     new Duck(),
     new Duck(),
+    new Rogue(),
 ];
 const banditStartDeck = [
+    new Lad(),
     new Lad(),
     new Lad(),
 ];
