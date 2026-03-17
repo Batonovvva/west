@@ -71,6 +71,45 @@ class Trasher extends Dog {
     }
 }
 
+
+
+class Gatling extends Creature {
+    constructor() {
+        super();
+        this.name = 'Gatling';
+        this.maxPower = 6;
+        this.currentPower = 6;
+        this.updateView();
+    }
+
+    attack(gameContext, continuation) {
+            const taskQueue = new TaskQueue();
+    
+            const {currentPlayer, oppositePlayer, position, updateView} = gameContext;
+            const oppositePlayerCards = gameContext.oppositePlayer.table;
+            
+            for (const oppositeCard of oppositePlayerCards)  {
+                taskQueue.push(onDone => this.view.showAttack(onDone));
+                taskQueue.push(onDone => {
+                    if (oppositeCard) {
+                        this.dealDamageToCreature(2, oppositeCard, gameContext, onDone);
+                    } 
+                });
+            }
+    
+            taskQueue.continueWith(continuation);
+        };
+    
+
+    getDescriptions() {
+        return [
+            'Наносит всем картам противника 2 урона.',
+            ...super.getDescriptions(),
+        ];
+    }
+}
+
+
 // Дает описание существа по схожести с утками и собаками
 function getCreatureDescription(card) {
     if (isDuck(card) && isDog(card)) {
@@ -90,10 +129,12 @@ const seriffStartDeck = [
     new Duck(),
     new Duck(),
     new Duck(),
-    new Duck(),
+    new Gatling(),
 ];
 const banditStartDeck = [
     new Trasher(),
+    new Dog(),
+    new Dog(),
 ];
 
 
@@ -102,7 +143,7 @@ const banditStartDeck = [
 const game = new Game(seriffStartDeck, banditStartDeck);
 
 // Глобальный объект, позволяющий управлять скоростью всех анимаций.
-SpeedRate.set(1);
+SpeedRate.set(4);
 
 // Запуск игры.
 game.play(false, (winner) => {
