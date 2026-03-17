@@ -9,14 +9,13 @@ class Creature extends Card {
         super(name, maxPower, image);
     }
 
-    getDescriptions(){
+    getDescriptions() {
         return [
             getCreatureDescription(this),
-            super.getDescriptions()
+            ...super.getDescriptions()
         ];
-    };
+    }
 }
-
 
 class Duck extends Creature {
     constructor() {
@@ -35,6 +34,61 @@ class Duck extends Creature {
 class Dog extends Creature {
     constructor() {
         super('Пес-бандит', 3);
+    }
+}
+
+class Lad extends Dog {
+    constructor() {
+        super();
+        this.name = 'Браток';
+        this.maxPower = 2;
+        this.currentPower = 2;
+        this.updateView();
+    }
+
+    static getInGameCount() {
+        return this.inGameCount || 0;
+    }
+
+    static setInGameCount(value) {
+        this.inGameCount = value;
+    }
+
+    static getBonus() {
+        const count = this.getInGameCount();
+        return count * (count + 1) / 2;
+    }
+
+    doAfterComingIntoPlay(gameContext, continuation) {
+        this.constructor.setInGameCount(this.constructor.getInGameCount() + 1);
+        gameContext.updateView();
+        continuation();
+    }
+
+    doBeforeRemoving(continuation) {
+        this.constructor.setInGameCount(this.constructor.getInGameCount() - 1);
+        continuation();
+    }
+
+    modifyDealedDamageToCreature(value, toCard, gameContext, continuation) {
+        continuation(value + this.constructor.getBonus());
+    }
+
+    modifyTakenDamage(value, fromCard, gameContext, continuation) {
+        continuation(value - this.constructor.getBonus());
+    }
+
+    getDescriptions() {
+        const descriptions = [...super.getDescriptions()];
+
+        if (
+            Lad.prototype.hasOwnProperty('modifyDealedDamageToCreature') ||
+            Lad.prototype.hasOwnProperty('modifyTakenDamage')
+        ) {
+            descriptions.unshift('Чем их больше, тем они сильнее');
+        }
+
+        return descriptions;
     }
 }
 
@@ -129,12 +183,10 @@ const seriffStartDeck = [
     new Duck(),
     new Duck(),
     new Duck(),
-    new Gatling(),
 ];
 const banditStartDeck = [
-    new Trasher(),
-    new Dog(),
-    new Dog(),
+    new Lad(),
+    new Lad(),
 ];
 
 
